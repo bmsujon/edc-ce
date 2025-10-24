@@ -103,6 +103,194 @@ Open two browser tabs:
 
 ---
 
+## 📚 EDC Terminology Guide
+
+**New to EDC?** Before diving in, let's clarify key terms you'll encounter throughout this guide.
+
+### Core Concepts
+
+**Asset** 🗃️
+
+- **What:** A dataset, API endpoint, file, or any data resource you want to share
+- **Examples:** Weather API, customer database, CSV file, PDF report, IoT sensor data
+- **In UI:** Created and managed in the "Assets" menu
+- **Think of it as:** The "product" you're offering in the dataspace marketplace
+
+**Policy** 📜
+
+- **What:** Rules defining WHO can access data and HOW
+- **Types:**
+  - **Access Policy:** Controls who can SEE offers in catalog (visibility)
+  - **Contract Policy:** Controls who can NEGOTIATE contracts (usage rights)
+- **Examples:** "Only partners with BPN-XXX", "Valid until Dec 31, 2025", "Read-only access"
+- **Think of it as:** The "terms and conditions" for accessing data
+
+**Contract Definition / Data Offer** 🎯
+
+- **What:** Published offer combining assets + policies
+- **What consumers see:** This appears as a card in the catalog
+- **Can include:** One or multiple assets in a single offer
+- **Think of it as:** A complete "product listing" with pricing/terms
+
+**Catalog** 📖
+
+- **What:** List of available data offers from a provider
+- **How to access:** Consumer browses by entering provider's DSP endpoint
+- **Filtering:** Access policies determine what you can see
+- **Think of it as:** The "store front" showing available products
+
+**DSP (Dataspace Protocol)** 🔌
+
+- **What:** Communication standard between connectors (like HTTP for web browsers)
+- **URL Format:** `http://provider/api/v1/dsp`
+- **Purpose:** Discovery, negotiation, and transfer coordination
+- **Think of it as:** The "language" connectors use to talk to each other
+
+**Contract Negotiation** 🤝
+
+- **What:** Process of agreeing on data usage terms between provider and consumer
+- **States:** REQUESTING → REQUESTED → AGREED → FINALIZED
+- **Duration:** Typically 5-15 seconds
+- **Think of it as:** The "checkout process" - finalizing the deal
+
+**Contract Agreement** ✅
+
+- **What:** Finalized, legally binding contract between provider & consumer
+- **Created:** After successful negotiation
+- **Contains:** Asset references, policies, validity period, participant IDs
+- **Think of it as:** The "signed purchase order" or "license agreement"
+
+**Transfer Process** 📊
+
+- **What:** Actual data movement from provider to consumer
+- **Types:** HTTP Push (provider sends) or HTTP Pull (consumer fetches)
+- **States:** REQUESTING → REQUESTED → STARTED → COMPLETED
+- **Think of it as:** The "delivery" - getting the product to the customer
+
+**EDR (Endpoint Data Reference)** 🎫
+
+- **What:** Token to access data in HTTP Pull transfers
+- **Contains:** Endpoint URL + authorization token (JWT)
+- **Lifetime:** Usually 30-60 minutes (configurable)
+- **Think of it as:** A "temporary access pass" or "download link with password"
+
+---
+
+### Policy Terms
+
+**Access Policy vs Contract Policy** 🔐
+
+- **Access Policy:** Controls who can SEE offers in catalog (like a store's open hours)
+- **Contract Policy:** Controls who can NEGOTIATE contracts (like credit approval)
+- **Key difference:** You might see an offer but not be allowed to buy it
+- **Both can:** Have same or different constraints
+
+**BPN (Business Partner Number)** 🏢
+
+- **What:** Unique organization identifier in the dataspace
+- **Format:** `BPNL000000000001` (alphanumeric string)
+- **Usage:** Restrict access to specific partners or partner groups
+- **Think of it as:** Your "company ID card" in the dataspace
+
+**Constraint** ⚙️
+
+- **What:** A condition in a policy (time limit, location, BPN requirement)
+- **Structure:** Left operand + operator + right operand
+- **Examples:**
+  - `validUntil < 2025-12-31` (time constraint)
+  - `BusinessPartnerNumber = BPNL123` (BPN constraint)
+  - `region = EU` (location constraint)
+
+---
+
+### Transfer Terms
+
+**HTTP Push** 📤
+
+- **What:** Provider actively sends data to consumer's endpoint
+- **When to use:** Consumer provides webhook/receiver URL
+- **Flow:** Provider → Consumer's webhook
+- **Benefit:** One-time automatic delivery (set it and forget it)
+- **Example:** Provider posts weather data to your webhook.site URL
+
+**HTTP Pull** 📥
+
+- **What:** Consumer fetches data using EDR token on-demand
+- **When to use:** Consumer wants control over when to fetch
+- **Flow:** Consumer → Provider's data endpoint (with EDR token)
+- **Benefit:** Can fetch multiple times until token expires
+- **Example:** You use curl with EDR token to fetch data 10 times
+
+**Data Plane** ✈️
+
+- **What:** Component handling actual data transfer
+- **Role:** Moves data between endpoints, streams files
+- **Separate from:** Control Plane (which handles negotiations)
+- **Think of it as:** The "delivery truck" that moves the actual data
+
+**Control Plane** 🎛️
+
+- **What:** Component handling negotiations and management
+- **Role:** Manages catalog, contracts, policies, negotiations
+- **APIs:** Management API (for admin), DSP API (for connector communication)
+- **Think of it as:** The "office" that handles paperwork and agreements
+
+---
+
+### State Terminology
+
+**Transfer/Negotiation States:**
+
+| State        | Meaning     | What's Happening                         |
+| ------------ | ----------- | ---------------------------------------- |
+| `REQUESTING` | Initiated   | Consumer sent request to provider        |
+| `REQUESTED`  | Received    | Provider received request, processing    |
+| `AGREED`     | Accepted    | Both parties agreed (for contracts only) |
+| `FINALIZED`  | Ready       | Contract completed, ready to use         |
+| `STARTED`    | In Progress | Transfer actively happening              |
+| `COMPLETED`  | Success ✅  | Successfully finished                    |
+| `FAILED`     | Error ❌    | Error occurred, check details            |
+
+---
+
+### Participant Terms
+
+**Provider** 👤
+
+- **Who:** Organization sharing/offering data
+- **Role:** Creates assets, policies, offers; monitors incoming requests
+- **UI Port:** localhost:11000 (in local demo)
+- **Think of as:** The "seller" or "data source"
+
+**Consumer** 👥
+
+- **Who:** Organization requesting/receiving data
+- **Role:** Browses catalog, negotiates contracts, initiates transfers
+- **UI Port:** localhost:22000 (in local demo)
+- **Think of as:** The "buyer" or "data user"
+
+**Counterparty** 🤝
+
+- **Who:** The other organization in a transaction
+- **From Provider view:** The consumer
+- **From Consumer view:** The provider
+- **Think of it as:** The "other party" in the deal
+
+**Participant ID** 🆔
+
+- **What:** Your unique identifier in the dataspace
+- **Format:** String (e.g., `provider`, `consumer`, `company-a`)
+- **Usage:** Identifying connectors in negotiations and contracts
+- **Think of it as:** Your "username" in the dataspace
+
+---
+
+💡 **Tip:** Bookmark this section! When you see an unfamiliar term later in the guide, come back here for quick reference.
+
+🔗 **Related Docs:** For deeper technical details, see `/PROVIDER_VS_CONSUMER.md` and `/EDC_API_WORKFLOW_COMPLETE.md`
+
+---
+
 ## 🏢 Two Perspectives: Provider & Consumer
 
 In a dataspace, there are **two roles**:
@@ -215,6 +403,81 @@ If this is your first time using an EDC connector interface, here's what to expe
 
 **Navigation**: Left sidebar → **"Assets"** → Click **"Create Asset"** button
 
+---
+
+#### 🎨 Visual Guide: Finding the Create Asset Button
+
+**Where to find it:**
+
+- 📍 **Location:** Top-right corner of the Assets page
+- 🎨 **Appearance:** Blue button (primary color) with text
+- 🔤 **Button Text:** "+ Create Asset", "New Asset", or "+ Add Asset"
+- 📱 **Icon:** Plus (+) symbol or document/file icon
+
+**If you can't see the button:**
+
+1. ✓ Ensure you're on the **Assets** page (check left sidebar menu item is highlighted)
+2. ✓ Scroll to the **top** of the page (button is in page header)
+3. ✓ Look for blue-colored buttons in the top-right area
+4. ✓ Verify you have **provider role** (not read-only access)
+5. ✓ Try refreshing the page (F5 or Cmd+R)
+
+**Form Layout:**
+
+- **Top Section:** Basic information fields (Asset ID, Name, Description)
+- **Middle Section:** Data source configuration (scroll down to see this)
+- **Bottom Section:** Private properties (optional metadata)
+- **Action Buttons:** "Create Asset" (blue) and "Cancel" (gray) at bottom
+
+---
+
+#### 📋 Asset Creation Fields Reference
+
+Before filling in the form, here's what each field means:
+
+**Basic Information Fields:**
+
+| Field Name       | Required?   | Format/Type            | Max Length | Example                | Notes                                           |
+| ---------------- | ----------- | ---------------------- | ---------- | ---------------------- | ----------------------------------------------- |
+| **Asset ID**     | ✅ Yes      | Alphanumeric, `-`, `_` | 255 chars  | `weather-api-2024`     | Must be unique across your connector            |
+| **Asset Name**   | ✅ Yes      | Free text              | 255 chars  | `Berlin Weather Data`  | Displayed in catalog - make it descriptive      |
+| **Description**  | ⭕ Optional | Markdown supported     | 2000 chars | `Real-time weather...` | Helps consumers understand what they're getting |
+| **Version**      | ⭕ Optional | Semantic version       | 20 chars   | `1.0.0`, `2.1.3`       | Recommended for tracking changes                |
+| **Content Type** | ⭕ Optional | MIME type              | 100 chars  | `application/json`     | Important - tells consumers the data format     |
+| **Language**     | ⭕ Optional | ISO 639-1 code         | 10 chars   | `en`, `de`, `fr`       | Language of the data content                    |
+| **Publisher**    | ⭕ Optional | Free text              | 255 chars  | `Open-Meteo`           | Your organization name                          |
+| **License**      | ⭕ Optional | SPDX identifier        | 100 chars  | `CC-BY-4.0`, `MIT`     | Legal terms for data usage                      |
+
+**Data Source Configuration:**
+
+| Field                | Required?             | Format              | Example                        | Notes                             |
+| -------------------- | --------------------- | ------------------- | ------------------------------ | --------------------------------- |
+| **Offer Type**       | ✅ Yes                | Selection           | `Available (with data source)` | Choose if you have actual data    |
+| **Data Source Type** | ✅ Yes                | Dropdown            | `HTTP Data`, `S3`, `AzureBlob` | How data is accessed              |
+| **Base URL**         | ✅ Yes (if with data) | Valid HTTP(S) URL   | `https://api.example.com/data` | Must be accessible from connector |
+| **Path Params**      | ⭕ Optional           | URL path segment    | `/v1/weather`                  | Appended to base URL              |
+| **Query Params**     | ⭕ Optional           | `key=value` format  | `latitude=52.52`               | One parameter per line            |
+| **Request Method**   | ⭕ Optional           | HTTP verb           | `GET`, `POST`, `PUT`           | Default: GET                      |
+| **Request Body**     | ⭕ Optional           | JSON                | `{"city": "Berlin"}`           | Only for POST/PUT requests        |
+| **Request Headers**  | ⭕ Optional           | `key: value` format | `Accept: application/json`     | One header per line               |
+
+**Private Properties (Metadata):**
+
+| Field              | Required?   | Format    | Example       | Notes                                     |
+| ------------------ | ----------- | --------- | ------------- | ----------------------------------------- |
+| **Property Key**   | ⭕ Optional | Free text | `internal-id` | Not shared in catalog (internal use only) |
+| **Property Value** | ⭕ Optional | Free text | `WX-001`      | Metadata for your records                 |
+
+**Validation Rules:**
+
+- ✅ **Asset ID:** Only letters, numbers, hyphens, underscores (no spaces or special chars)
+- ✅ **Base URL:** Must start with `http://` or `https://`
+- ✅ **Query Params:** Format: `key=value`, one parameter per line (no `?` or `&` needed)
+- ✅ **Content Type:** Must be valid MIME type (e.g., `application/json`, `text/csv`, `application/xml`)
+- ✅ **Version:** Follow semantic versioning: `major.minor.patch` (e.g., `1.0.0`)
+
+---
+
 #### Fill in Asset Details:
 
 **Basic Information:**
@@ -299,6 +562,53 @@ docker compose logs provider-connector --tail=50
 ### Part 3: Create Access Policy (Provider)
 
 **Navigation**: Left sidebar → **"Policies"** → Click **"Create Policy"** button
+
+---
+
+#### 📋 Policy Creation Fields Reference
+
+**Basic Policy Fields:**
+
+| Field Name      | Required?   | Format                 | Example                                     | Notes                      |
+| --------------- | ----------- | ---------------------- | ------------------------------------------- | -------------------------- |
+| **Policy ID**   | ✅ Yes      | Alphanumeric, `-`, `_` | `allow-all-policy`                          | Must be unique             |
+| **Policy Name** | ⭕ Optional | Free text              | `Unrestricted Access`                       | Descriptive name           |
+| **Policy Type** | ✅ Yes      | Selection              | `Unrestricted`, `BPN`, `Temporal`, `Custom` | Determines constraint type |
+
+**Constraint Fields (if not Unrestricted):**
+
+| Component         | Required? | Options/Format       | Example                                                              | Notes                   |
+| ----------------- | --------- | -------------------- | -------------------------------------------------------------------- | ----------------------- |
+| **Left Operand**  | ✅ Yes    | Predefined attribute | `BusinessPartnerNumber`, `validUntil`, `region`                      | What you're checking    |
+| **Operator**      | ✅ Yes    | Comparison operator  | `eq` (equals), `lt` (less than), `gt` (greater than), `in` (in list) | How to compare          |
+| **Right Operand** | ✅ Yes    | Value or expression  | `BPNL123`, `2025-12-31T23:59:59Z`                                    | What to compare against |
+
+**Common Constraint Types:**
+
+| Policy Type         | Left Operand            | Operator | Right Operand Example  | Use Case               |
+| ------------------- | ----------------------- | -------- | ---------------------- | ---------------------- |
+| **Unrestricted**    | None                    | None     | None                   | Public data, testing   |
+| **BPN Restriction** | `BusinessPartnerNumber` | `eq`     | `BPNL000000000001`     | Specific partner only  |
+| **BPN Group**       | `BusinessPartnerNumber` | `in`     | `BPNL001, BPNL002`     | Multiple partners      |
+| **Time Limited**    | `validUntil`            | `lt`     | `2025-12-31T23:59:59Z` | Expiring offers        |
+| **Time Window**     | `validFrom`             | `gt`     | `2025-01-01T00:00:00Z` | Future availability    |
+| **Region**          | `region`                | `eq`     | `EU`, `US`, `APAC`     | Geographic restriction |
+
+**Validation Rules:**
+
+- ✅ **Policy ID:** Only letters, numbers, hyphens, underscores (no spaces)
+- ✅ **Date Format:** ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ` (e.g., `2025-12-31T23:59:59Z`)
+- ✅ **BPN Format:** Usually `BPNL` followed by 12 digits (e.g., `BPNL000000000001`)
+- ✅ **Multiple Values:** For `in` operator, separate with commas: `value1, value2, value3`
+
+**Policy Tips:**
+
+- 💡 **Start simple:** Use unrestricted policy for initial testing
+- 💡 **Access vs Contract:** Remember this is ACCESS policy (who can SEE offers)
+- 💡 **Multiple constraints:** You can add multiple constraints (all must be satisfied)
+- 💡 **Test first:** Create unrestricted, test workflow, then add restrictions
+
+---
 
 #### Option A: Unrestricted Policy (for testing)
 
@@ -513,6 +823,36 @@ docker compose logs provider-connector --tail=30 | grep -i catalog
 - **Empty catalog ≠ Error**: Provider might have offers with restrictive access policies
 - **Multiple offers**: If provider has multiple offers, all matching access policy will show
 - **Refresh**: Catalog is fetched fresh each time (not cached)
+
+---
+
+#### 🎨 Visual Guide: Catalog Browser
+
+**Entering Provider Information:**
+
+- 📍 **Form Location:** Center of Catalog Browser page
+- 🔤 **Fields to fill:**
+  1. **Counterparty Connector URL** (top field) - Enter: `http://provider/api/v1/dsp`
+  2. **Participant ID** (bottom field) - Enter: `provider`
+- 🔘 **Fetch Button:** Blue button labeled "Fetch Catalog" or "Browse Catalog"
+
+**After Fetching - What You'll See:**
+
+- 📦 **Offer Cards:** Grid or list of data offer cards
+- 🎨 **Card Appearance:**
+  - Border (usually subtle gray or blue)
+  - Offer ID at top (bold text)
+  - Asset name(s) in middle
+  - Description text below
+  - Publisher info at bottom
+- ✋ **Interaction:** Cards are clickable - hover shows hand cursor
+- 🔍 **Details:** Click any card to view full offer details
+
+**Visual Indicators:**
+
+- 🟢 **Green badge:** Active/available offer
+- 🔵 **Blue text:** Clickable elements (offer ID, asset names)
+- 📊 **Asset count:** Shows "1 asset" or "3 assets" etc.
 
 ---
 
@@ -757,6 +1097,42 @@ Click **"Start Transfer"** button.
 
 ---
 
+#### 🎨 Visual Guide: Transfer Initiation
+
+**Finding the Transfer Button:**
+
+- 📍 **Location:** On the Contract Detail page (after clicking a contract)
+- 🎨 **Button Appearance:** Blue button labeled "Transfer Data", "Initiate Transfer", or "Start Transfer"
+- 📍 **Alternative:** Or in Contracts list - each contract card has a transfer button
+
+**Transfer Form/Modal:**
+
+- 📝 **Form Type:** Usually opens a modal dialog (popup) or side panel
+- 🔝 **Top Section:** Transfer type selector (radio buttons or dropdown)
+  - Option 1: HTTP Push (with webhook URL field)
+  - Option 2: HTTP Pull (simpler, fewer fields)
+
+**For HTTP Push - Fields You'll See:**
+
+- 📥 **Data Sink URL** (required): Your webhook endpoint
+  - Placeholder: `https://webhook.site/your-unique-id`
+  - Must be publicly accessible URL
+- 🔧 **Method** (optional): Usually defaults to POST
+- 📄 **Content Type** (optional): Usually defaults to application/json
+
+**For HTTP Pull - What You'll See:**
+
+- ✅ **Simpler form:** Just select "HTTP Pull" transfer type
+- 📝 **No URL needed:** System generates EDR token automatically
+- 💬 **Message:** "EDR token will be available after transfer starts"
+
+**Form Buttons:**
+
+- 🔵 **Start Transfer / Initiate** (blue) - Confirms and starts
+- ⚪ **Cancel** (gray) - Closes modal without action
+
+---
+
 ### Part 10: Monitor Transfer Status (Consumer)
 
 **Navigation**: Left sidebar → **"Transfer History"**
@@ -896,6 +1272,173 @@ docker compose logs provider-connector --tail=50 | grep -i "data plane\|transfer
 - **COMPLETED ≠ Data received**: For Push, also check your webhook
 - **EDR tokens expire**: Typically 30-60 minutes - use them promptly
 - **Multiple EDRs allowed**: Initiate multiple Pull transfers for the same contract
+
+---
+
+### 📊 Real-World Data Examples
+
+To help you understand what successful transfers look like, here are actual examples:
+
+#### Example 1: Weather API Response (HTTP Pull)
+
+**When you fetch data with EDR token from the weather asset, you'll receive:**
+
+```json
+{
+  "latitude": 52.52,
+  "longitude": 13.419998,
+  "generationtime_ms": 0.089,
+  "utc_offset_seconds": 0,
+  "timezone": "GMT",
+  "timezone_abbreviation": "GMT",
+  "elevation": 38.0,
+  "current_weather_units": {
+    "time": "iso8601",
+    "interval": "seconds",
+    "temperature": "°C",
+    "windspeed": "km/h",
+    "winddirection": "°",
+    "is_day": "",
+    "weathercode": "wmo code"
+  },
+  "current_weather": {
+    "time": "2025-10-24T10:30",
+    "interval": 900,
+    "temperature": 11.2,
+    "windspeed": 15.1,
+    "winddirection": 230,
+    "is_day": 1,
+    "weathercode": 3
+  }
+}
+```
+
+**What this data means:**
+
+- 🌡️ **Temperature:** 11.2°C (current temperature in Berlin)
+- 💨 **Wind:** 15.1 km/h from southwest (230° direction)
+- ☁️ **Condition:** Partly cloudy (weathercode 3)
+- 📍 **Location:** Berlin, Germany (52.52°N, 13.42°E)
+- 🏔️ **Elevation:** 38 meters above sea level
+- ⏰ **Time:** October 24, 2025 at 10:30 GMT
+- 📊 **Data freshness:** Generated in 0.089 milliseconds
+
+---
+
+#### Example 2: HTTP Push Webhook Delivery
+
+**What appears at your webhook.site when transfer completes:**
+
+**Request Headers You'll See:**
+
+```
+POST /your-unique-id HTTP/1.1
+Host: webhook.site
+Content-Type: application/json
+Content-Length: 472
+User-Agent: Eclipse-EDC-DataPlane/0.11.1
+X-Transfer-Id: 550e8400-e29b-41d4-a716-446655440000
+X-Contract-Id: 778899
+Date: Thu, 24 Oct 2025 10:30:45 GMT
+```
+
+**Request Body (Actual Data):**
+
+```json
+{
+  "latitude": 52.52,
+  "longitude": 13.419998,
+  "generationtime_ms": 0.089,
+  "utc_offset_seconds": 0,
+  "timezone": "GMT",
+  "elevation": 38.0,
+  "current_weather": {
+    "time": "2025-10-24T10:30",
+    "interval": 900,
+    "temperature": 11.2,
+    "windspeed": 15.1,
+    "winddirection": 230,
+    "is_day": 1,
+    "weathercode": 3
+  }
+}
+```
+
+**What to check:**
+
+- ✅ Status code: `200 OK`
+- ✅ Content-Type: `application/json`
+- ✅ X-Transfer-Id header present (identifies this transfer)
+- ✅ Body contains actual weather data (not error message)
+
+---
+
+#### Example 3: EDR Token Structure (HTTP Pull)
+
+**When you click "View EDR" button, the modal shows:**
+
+```json
+{
+  "endpoint": "http://provider/api/public",
+  "authorization": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJwcm92aWRlciIsInN1YiI6ImNvbnN1bWVyIiwiZXhwIjoxNzI5NzY4ODAwLCJpYXQiOjE3Mjk3NjUyMDAsImNpZCI6Ijc3ODg5OSIsImFpZCI6IndlYXRoZXItYXBpLWFzc2V0In0.signature_here...",
+  "expiresAt": 1729768800
+}
+```
+
+**Understanding the EDR response:**
+
+- **endpoint:** Where to fetch data (Docker internal URL - remember to map to localhost!)
+- **authorization:** JWT Bearer token (very long string)
+- **expiresAt:** Unix timestamp when token expires (usually 1 hour)
+
+**Decoded Token Payload (for educational purposes):**
+
+```json
+{
+  "iss": "provider", // Issued by: provider connector
+  "sub": "consumer", // Subject: consumer connector
+  "exp": 1729768800, // Expires: Unix timestamp
+  "iat": 1729765200, // Issued at: Unix timestamp
+  "cid": "778899", // Contract ID reference
+  "aid": "weather-api-asset" // Asset ID being accessed
+}
+```
+
+**How to use this EDR:**
+
+```bash
+# Copy the authorization token from UI
+EDR_TOKEN="eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+# Fetch data (note: use localhost, not the internal 'provider' hostname)
+curl -X GET "http://localhost:11000/api/public" \
+  -H "Authorization: $EDR_TOKEN"
+
+# You'll get the weather JSON back!
+```
+
+---
+
+#### Example 4: Failed Transfer Response
+
+**If data source is unreachable, you might see:**
+
+```json
+{
+  "error": "Connection refused",
+  "message": "Failed to fetch data from https://api.example.com/data",
+  "timestamp": "2025-10-24T10:30:45Z",
+  "transferId": "550e8400-e29b-41d4-a716-446655440000"
+}
+```
+
+**In Transfer History, you'll see:**
+
+- State: `FAILED` (red badge)
+- Error message: "Connection refused" or "404 Not Found"
+- Details: Click transfer to see full error
+
+**How to fix:** Provider needs to check the asset's Base URL is correct and accessible.
 
 ---
 
