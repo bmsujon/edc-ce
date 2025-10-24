@@ -22,6 +22,65 @@ The sovity EDC-CE provides a full-featured **Next.js web interface** that allows
 
 ---
 
+## ✅ Prerequisites Checklist
+
+Before you begin, ensure you have:
+
+### **System Requirements:**
+
+- ✅ **Docker Desktop 20.10+** (Mac/Windows) or **Docker Engine** (Linux)
+- ✅ **8 GB RAM minimum** (16 GB recommended for smooth operation)
+- ✅ **10 GB free disk space** (for Docker images and containers)
+- ✅ **Internet connection** (for pulling Docker images)
+
+### **Network Requirements:**
+
+- ✅ **Ports 11000, 22000 must be available** (not used by other services)
+- ✅ **Firewall allows Docker networking**
+
+### **Browser Requirements:**
+
+- ✅ **Modern browser**: Chrome 90+, Firefox 88+, Safari 14+, or Edge 90+
+- ✅ **JavaScript enabled**
+- ✅ **Cookies enabled**
+
+### **Optional but Helpful:**
+
+- ⭕ **Webhook.site account** (free - for testing HTTP Push transfers)
+- ⭕ **Postman or curl** (for testing EDR tokens manually)
+- ⭕ **Text editor** (for viewing JSON responses)
+
+### **Quick Verification:**
+
+Run these commands to verify your system is ready:
+
+```bash
+# 1. Check Docker is installed and running
+docker --version
+# Expected: Docker version 20.10.0 or higher
+
+docker compose version
+# Expected: Docker Compose version v2.0.0 or higher
+
+# 2. Verify ports are available (should return nothing if free)
+lsof -i :11000
+lsof -i :22000
+
+# 3. Check available disk space
+df -h | grep -E 'Filesystem|/$'
+# Should show at least 10GB free
+```
+
+**✅ If all checks pass, you're ready to proceed!**
+
+**❌ If any check fails:**
+
+- Docker not installed? → Visit https://docs.docker.com/get-docker/
+- Ports in use? → Stop the service using that port or use different ports
+- Not enough disk space? → Free up space or use external drive
+
+---
+
 ## 🚀 Quick Setup
 
 ### 1. Start the Local Demo
@@ -72,7 +131,71 @@ In a dataspace, there are **two roles**:
 
 ---
 
-## 🎬 Complete Flow: Provider Side
+## � First Time Opening the UI
+
+If this is your first time using an EDC connector interface, here's what to expect:
+
+### **When you open http://localhost:11000 (Provider), you'll see:**
+
+**🎨 Layout:**
+
+- **Top Navigation Bar**: Shows your connector name and participant ID
+- **Left Sidebar**: Main navigation menu (where you'll spend most of your time)
+- **Center Area**: Main content area showing dashboard or selected page
+- **Bottom Status Bar**: Connection status and system health indicators
+
+**📋 Menu Overview (Provider - localhost:11000):**
+
+| Menu Item            | Icon | What It Does                   | When to Use                                      |
+| -------------------- | ---- | ------------------------------ | ------------------------------------------------ |
+| **Dashboard**        | 🏠   | Overview and statistics        | First landing page, check system status          |
+| **Assets**           | 📦   | Your data offerings            | Create and manage data you want to share         |
+| **Policies**         | 📜   | Access rules and constraints   | Define who can access your data and how          |
+| **Data Offers**      | 🎯   | Published contract definitions | Combine assets + policies into offers            |
+| **Contracts**        | 📋   | Active agreements              | View negotiated contracts with consumers         |
+| **Transfer History** | 📊   | Data transfer logs             | Monitor data delivery status                     |
+| **Settings**         | ⚙️   | Configuration                  | Advanced settings (usually don't need to change) |
+
+**📋 Menu Overview (Consumer - localhost:22000):**
+
+| Menu Item            | What It Does                                 | When to Use                             |
+| -------------------- | -------------------------------------------- | --------------------------------------- |
+| **Dashboard**        | Overview and statistics                      | First landing page                      |
+| **Catalog Browser**  | Search for data from other connectors        | Find data you want to consume           |
+| **Contracts**        | Your agreements (tabs: Consuming, Providing) | View contracts you've negotiated        |
+| **Transfer History** | Your data transfers                          | Check transfer status and results       |
+| **Assets**           | Your data offerings                          | (Yes, consumers can also be providers!) |
+
+### **💡 First-Time Tips:**
+
+1. **Start with Dashboard** - Get familiar with the layout, no risk of breaking anything
+2. **Left-to-Right Flow** - Provider workflow follows the menu order: Assets → Policies → Data Offers
+3. **Two Browser Windows** - Keep both provider (11000) and consumer (22000) open side-by-side
+4. **Wait for Actions** - After creating/updating, give the UI 1-2 seconds to refresh
+5. **Look for Notifications** - Success/error messages appear in the top-right corner
+6. **Green = Good** - Status badges in green mean active/successful
+
+### **🎯 What You'll Do:**
+
+**As Provider (localhost:11000):**
+
+1. Create an asset (Part 2)
+2. Create a policy (Part 3)
+3. Create a contract definition (Part 4)
+4. Wait for consumer to discover your offer
+
+**As Consumer (localhost:22000):**
+
+1. Browse the catalog (Part 5)
+2. Negotiate a contract (Part 7)
+3. Initiate a data transfer (Part 9)
+4. Verify data received (Part 10)
+
+**Total Time: ~60 minutes for first time** (subsequent runs: ~15 minutes)
+
+---
+
+## �🎬 Complete Flow: Provider Side
 
 ### Part 1: Provider Dashboard
 
@@ -125,7 +248,49 @@ In a dataspace, there are **two roles**:
 
 Click **"Create Asset"** button.
 
-✅ **Result**: Asset created and appears in Assets list!
+---
+
+#### ✅ **Success Indicators:**
+
+**What Success Looks Like:**
+
+- 🟢 **Green notification** appears in top-right: "Asset created successfully"
+- 🟢 **Automatic redirect** to Assets list page
+- 🟢 **Your new asset appears** in the table with asset ID `weather-api-asset`
+- 🟢 **Status badge shows "Active"** (green badge)
+- 🟢 **Asset details are saved** - click on asset to verify all fields
+
+**How to Verify:**
+
+1. Go to **Assets** menu (left sidebar)
+2. Look for your asset ID in the list
+3. Click on the asset row to view details
+4. Verify all fields match what you entered
+
+#### ❌ **Common Issues & Solutions:**
+
+| Problem                                 | Likely Cause          | Solution                                         |
+| --------------------------------------- | --------------------- | ------------------------------------------------ |
+| ❌ Red error: "Asset ID already exists" | ID is not unique      | Choose a different ID (add -v2, timestamp, etc.) |
+| ❌ Red error: "Invalid URL format"      | Base URL is malformed | Ensure URL starts with http:// or https://       |
+| ❌ Red error: "Required field missing"  | Mandatory field empty | Check Asset ID and Name are filled               |
+| ❌ No redirect after clicking Create    | Browser/network issue | Check browser console (F12), refresh page        |
+| ❌ Asset not visible in list            | Page not refreshed    | Manually refresh the Assets page                 |
+
+**Troubleshooting Steps:**
+
+```bash
+# Check provider connector is running
+docker compose ps | grep provider-connector
+# Should show "running (healthy)"
+
+# View provider logs if errors occur
+docker compose logs provider-connector --tail=50
+```
+
+---
+
+**✅ Result**: Asset created and appears in Assets list!
 
 ![Create Asset](/docs/images/provider-asset-create-1.png)
 
@@ -165,6 +330,40 @@ Click **"Create Policy"**.
 
 Click **"Create Policy"**.
 
+---
+
+#### ✅ **Success Indicators:**
+
+**What Success Looks Like:**
+
+- 🟢 **Green notification**: "Policy created successfully"
+- 🟢 **Redirect to Policies list** page
+- 🟢 **Your policy appears** with the ID you specified
+- 🟢 **Policy type shown** in the list (e.g., "Unrestricted", "BPN", "Temporal")
+
+**How to Verify:**
+
+1. Navigate to **Policies** menu
+2. Find your policy ID in the list
+3. Click to view details and verify constraints
+
+#### ❌ **Common Issues & Solutions:**
+
+| Problem                            | Likely Cause                | Solution                                                |
+| ---------------------------------- | --------------------------- | ------------------------------------------------------- |
+| ❌ "Policy ID already exists"      | Duplicate ID                | Use a different, unique policy ID                       |
+| ❌ "Invalid constraint expression" | Malformed constraint syntax | Check operator and operand values match expected format |
+| ❌ "Invalid date format"           | Wrong temporal format       | Use ISO 8601: `YYYY-MM-DDTHH:MM:SSZ`                    |
+| ❌ Policy created but not usable   | Constraint logic error      | Review constraint - e.g., past date in validUntil       |
+
+**💡 Policy Testing Tip:**
+
+- Start with **unrestricted policy** (no constraints) for initial testing
+- Add constraints gradually once basic flow works
+- BPN constraints require exact match - typos will block access
+
+---
+
 ✅ **Result**: Policy created and appears in Policies list!
 
 ![Create Policy](/docs/images/provider-policy-create-1.png)
@@ -195,6 +394,54 @@ Click **"Create Policy"**.
 
 Click **"Create Data Offer"** button.
 
+---
+
+#### ✅ **Success Indicators:**
+
+**What Success Looks Like:**
+
+- 🟢 **Green notification**: "Data offer created successfully"
+- 🟢 **Redirect to Data Offers list**
+- 🟢 **Your offer appears** with offer ID `weather-data-offer-1`
+- 🟢 **Asset count shown** (e.g., "1 asset" or "3 assets")
+- 🟢 **Policies listed** in the offer details
+- 🟢 **Offer is now discoverable** by consumers in catalog
+
+**How to Verify:**
+
+1. Go to **Data Offers** menu
+2. Find your offer in the list
+3. Click to view details - should show:
+   - Selected assets
+   - Access policy
+   - Contract policy
+   - Publication status
+
+**Test Visibility (Optional):**
+
+- Switch to Consumer UI (localhost:22000)
+- Browse catalog with provider's DSP endpoint
+- Your offer should appear in results
+
+#### ❌ **Common Issues & Solutions:**
+
+| Problem                             | Likely Cause                  | Solution                                 |
+| ----------------------------------- | ----------------------------- | ---------------------------------------- |
+| ❌ "Offer ID already exists"        | Duplicate ID                  | Use unique offer ID                      |
+| ❌ "Policy not found"               | Selected policy was deleted   | Re-create the policy first               |
+| ❌ "No assets selected"             | Forgot to check asset boxes   | Select at least one asset                |
+| ❌ Offer created but not in catalog | Access policy too restrictive | Check access policy constraints          |
+| ❌ "Invalid policy reference"       | Policy doesn't exist          | Verify policy ID exists in Policies list |
+
+**💡 Contract Definition Tips:**
+
+- **Access Policy = Catalog Visibility**: Restrictive access policy means fewer consumers can see your offer
+- **Contract Policy = Negotiation Rules**: Restrictive contract policy means negotiation might fail even if offer is visible
+- **For testing**: Use `allow-all-policy` for both to avoid policy-related issues
+- **Multiple Assets**: One offer can bundle multiple related assets
+
+---
+
 ✅ **Result**: Data offer published to the dataspace!
 
 ![Create Data Offer](/docs/images/provider-contractdefinition-dataoffer-create-1.png)
@@ -214,6 +461,60 @@ Click **"Create Data Offer"** button.
 - **Participant ID**: `provider`
 
 Click **"Fetch Catalog"** button.
+
+---
+
+#### ✅ **Success Indicators:**
+
+**What Success Looks Like:**
+
+- 🟢 **Catalog fetched successfully** message appears
+- 🟢 **Data offer cards displayed** (at least one if provider has published offers)
+- 🟢 **Each card shows**:
+  - Data Offer ID (e.g., `weather-data-offer-1`)
+  - Asset name(s)
+  - Publisher information
+  - Brief description
+- 🟢 **Cards are clickable** - hovering shows interaction
+
+**How to Verify:**
+
+1. You should see at least one offer card (the one we created in Part 4)
+2. Card should show "Weather API Data" or your asset name
+3. Click on card to view full details
+
+#### ❌ **Common Issues & Solutions:**
+
+| Problem                    | Likely Cause                                       | Solution                                                                       |
+| -------------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------ |
+| ❌ "No offers found"       | Provider has no offers OR access policy blocks you | Check provider has created offer (Part 4). Check access policy allows consumer |
+| ❌ "Connection failed"     | DSP URL wrong or provider down                     | Verify `http://provider/api/v1/dsp` URL. Check: `docker compose ps`            |
+| ❌ "Participant not found" | Wrong participant ID                               | Use `provider` (case-sensitive)                                                |
+| ❌ Catalog loads but empty | Access policy too restrictive                      | Provider: check access policy constraints                                      |
+| ❌ Timeout error           | Provider connector slow/restarting                 | Wait 30 seconds, try again                                                     |
+
+**Troubleshooting Steps:**
+
+```bash
+# 1. Verify provider connector is running
+docker compose ps provider-connector
+# Should show "running (healthy)"
+
+# 2. Check DSP endpoint is accessible from consumer
+docker compose exec consumer-connector curl -s http://provider/api/v1/dsp
+# Should return JSON (not error)
+
+# 3. View provider logs for incoming requests
+docker compose logs provider-connector --tail=30 | grep -i catalog
+```
+
+**💡 Catalog Tips:**
+
+- **Empty catalog ≠ Error**: Provider might have offers with restrictive access policies
+- **Multiple offers**: If provider has multiple offers, all matching access policy will show
+- **Refresh**: Catalog is fetched fresh each time (not cached)
+
+---
 
 #### What You'll See:
 
@@ -287,6 +588,79 @@ After clicking "Negotiate Contract":
 
 ---
 
+#### ✅ **Success Indicators:**
+
+**What Success Looks Like:**
+
+- 🟢 **Negotiation initiated** message appears
+- 🟢 **Status progresses** through states:
+  - `REQUESTING` (0-2 seconds)
+  - `REQUESTED` (2-5 seconds)
+  - `AGREED` (5-8 seconds)
+  - `FINALIZED` (8-10 seconds)
+- 🟢 **Automatic redirect** to Contracts page
+- 🟢 **New contract appears** in "Consuming Contracts" tab
+- 🟢 **"Transfer Data" button** is now available
+
+**How to Verify:**
+
+1. After redirect, check **Contracts** → **Consuming Contracts** tab
+2. Your contract should appear with:
+   - Contract Agreement ID (long alphanumeric string)
+   - Counterparty: `provider`
+   - Asset: `weather-api-asset`
+   - Status: Active
+
+#### ❌ **Common Issues & Solutions:**
+
+| Problem                             | Likely Cause                              | Solution                                                                   |
+| ----------------------------------- | ----------------------------------------- | -------------------------------------------------------------------------- |
+| ❌ Stuck in "REQUESTING" >30 sec    | Provider connector down or slow           | Check: `docker compose ps provider-connector`                              |
+| ❌ Status: "FAILED" or "TERMINATED" | Contract policy constraints not satisfied | Check provider's contract policy. Your consumer attributes might not match |
+| ❌ "Policy violation" error         | BPN mismatch, time constraint, etc.       | Provider: Review policy constraints. Consumer: Check your participant ID   |
+| ❌ No redirect after FINALIZED      | UI refresh issue                          | Manually navigate to Contracts page                                        |
+| ❌ Contract not visible in list     | Wrong tab selected                        | Check "Consuming Contracts" tab, not "Providing"                           |
+
+**Troubleshooting Steps:**
+
+```bash
+# 1. Check provider connector is responsive
+docker compose ps | grep provider-connector
+# Should show "running (healthy)"
+
+# 2. View provider logs for negotiation activity
+docker compose logs provider-connector --tail=50 | grep -i negotiation
+
+# 3. View consumer logs for negotiation errors
+docker compose logs consumer-connector --tail=50 | grep -i "negotiation\|contract"
+
+# 4. If stuck, check both connectors' health
+curl -s http://localhost:11002/api/check/liveness  # Provider
+curl -s http://localhost:22002/api/check/liveness  # Consumer
+```
+
+**Policy Constraint Troubleshooting:**
+
+If negotiation fails with policy error:
+
+1. **BPN Policy**: Ensure consumer's participant ID matches provider's allowed BPN list
+2. **Temporal Policy**: Check current time is within policy's valid time window
+3. **Custom Constraints**: Verify consumer has required attributes
+
+**Recovery Steps:**
+
+1. Go back to Catalog Browser
+2. Try negotiating a different offer (with unrestricted policy)
+3. Or ask provider to adjust policy constraints
+
+**💡 Negotiation Tips:**
+
+- **Be patient**: First negotiation can take up to 15 seconds
+- **One offer, multiple contracts**: You can negotiate the same offer multiple times
+- **Failed negotiations auto-cleanup**: No manual deletion needed (24h retention)
+
+---
+
 ### Part 8: View Active Contracts (Consumer)
 
 **Navigation**: Left sidebar → **"Contracts"**
@@ -336,6 +710,50 @@ On the **Contract Detail Page**, click **"Transfer Data"** button.
 - You'll receive an **EDR token** to fetch data
 
 Click **"Start Transfer"** button.
+
+---
+
+#### ✅ **Success Indicators:**
+
+**What Success Looks Like:**
+
+- 🟢 **"Transfer initiated" message** appears
+- 🟢 **Automatic redirect** to Transfer History page
+- 🟢 **New transfer entry** appears at top of list
+- 🟢 **Transfer ID generated** (long alphanumeric string)
+- 🟢 **Initial state**: `REQUESTING` or `REQUESTED`
+
+**How to Verify:**
+
+1. After clicking "Start Transfer", you should be on Transfer History page
+2. Look for most recent transfer entry
+3. Note the Transfer Process ID for tracking
+
+#### ❌ **Common Issues & Solutions:**
+
+| Problem                           | Likely Cause                     | Solution                                              |
+| --------------------------------- | -------------------------------- | ----------------------------------------------------- |
+| ❌ "Invalid sink URL" (HTTP Push) | Malformed webhook URL            | Ensure URL starts with http:// or https://, no spaces |
+| ❌ "Contract not found"           | Contract expired/terminated      | Check contract is in Active Contracts tab             |
+| ❌ "Transfer failed immediately"  | Provider data source unreachable | Provider: Check asset's data source URL is accessible |
+| ❌ No transfer appears in history | UI not refreshed                 | Manually refresh Transfer History page                |
+| ❌ "Method not allowed" error     | Wrong HTTP method for Push       | Use POST for most webhooks                            |
+
+**💡 Transfer Type Guide:**
+
+**HTTP Push** - Use when:
+
+- ✅ You have a webhook endpoint ready (webhook.site, your server)
+- ✅ You want provider to deliver data to you
+- ✅ One-time data push is sufficient
+- ❌ Don't use if: Your endpoint isn't publicly accessible
+
+**HTTP Pull** - Use when:
+
+- ✅ You want to fetch data on-demand (multiple times)
+- ✅ You don't have a public webhook endpoint
+- ✅ You want control over when to fetch
+- ❌ Don't use if: Token might expire before you use it
 
 ---
 
@@ -396,6 +814,90 @@ EDR_TOKEN="eyJraWQ..."
 curl -X GET "http://localhost:11000/api/public" \
   -H "Authorization: $EDR_TOKEN"
 ```
+
+---
+
+#### ✅ **Success Indicators:**
+
+**For HTTP Push Transfers:**
+
+- 🟢 **Transfer state**: `REQUESTING` → `REQUESTED` → `STARTED` → `COMPLETED` (5-15 seconds)
+- 🟢 **Green "COMPLETED" badge** in Transfer History
+- 🟢 **Data appears at your webhook** (check webhook.site page)
+- 🟢 **Webhook received POST request** with JSON payload
+- 🟢 **Status code: 200 OK** from your webhook
+
+**For HTTP Pull Transfers:**
+
+- 🟢 **Transfer state**: `REQUESTING` → `REQUESTED` → `STARTED` → `COMPLETED` (5-10 seconds)
+- 🟢 **"View EDR" button appears** on transfer card
+- 🟢 **EDR modal shows**:
+  - Endpoint URL
+  - Authorization token (JWT)
+  - Expiration time
+- 🟢 **curl command returns data** (not 401/403 error)
+- 🟢 **JSON response received** with actual weather/API data
+
+**How to Verify HTTP Push:**
+
+1. Open your webhook.site page in another tab
+2. Refresh the page after transfer shows COMPLETED
+3. You should see a new POST request
+4. Click on request to view payload - should match provider's data source
+
+**How to Verify HTTP Pull:**
+
+1. Wait for transfer to reach COMPLETED state
+2. Click "View EDR" button
+3. Copy the authorization token
+4. Use curl command (replace localhost:11000 with correct port)
+5. Response should be real data (not error message)
+
+#### ❌ **Common Issues & Solutions:**
+
+| Problem                           | Likely Cause                        | Solution                                                                |
+| --------------------------------- | ----------------------------------- | ----------------------------------------------------------------------- |
+| ❌ Stuck in "STARTED" >30 sec     | Provider data source unreachable    | Provider: Check asset's Base URL is accessible from Docker network      |
+| ❌ State: "FAILED"                | Provider data fetch error           | Check provider logs: `docker compose logs provider-connector --tail=50` |
+| ❌ Webhook receives 404           | Provider's data source returned 404 | Provider: Verify Base URL and query params are correct                  |
+| ❌ EDR token gives 401 error      | Token expired or invalid            | Initiate new transfer to get fresh token                                |
+| ❌ EDR curl returns Docker error  | Used internal URL from host         | Replace `http://provider/...` with `http://localhost:11000/...`         |
+| ❌ Transfer completes but no data | Webhook URL was wrong               | Check webhook URL is correct and accessible                             |
+| ❌ "Connection refused" (Push)    | Webhook endpoint down               | Ensure your webhook/server is running and publicly accessible           |
+
+**Troubleshooting Steps:**
+
+```bash
+# For HTTP Push failures - check provider can reach the webhook
+docker compose exec provider-connector curl -X POST https://webhook.site/your-id \
+  -H "Content-Type: application/json" \
+  -d '{"test": "data"}'
+# Should return 200 OK
+
+# For HTTP Pull - verify EDR endpoint is accessible
+curl -X GET "http://localhost:11000/api/public" \
+  -H "Authorization: Bearer YOUR_EDR_TOKEN"
+# Should return data (not 401/404)
+
+# Check transfer process details in logs
+docker compose logs consumer-connector --tail=100 | grep -i "transfer\|COMPLETED\|FAILED"
+
+# Check provider's data plane logs
+docker compose logs provider-connector --tail=50 | grep -i "data plane\|transfer"
+```
+
+**💡 Transfer Monitoring Tips:**
+
+- **Refresh frequently**: Transfer History doesn't auto-update - click refresh button
+- **State progression timing**:
+  - REQUESTING → REQUESTED: 1-2 seconds
+  - REQUESTED → STARTED: 2-5 seconds
+  - STARTED → COMPLETED: 3-10 seconds (depends on data size)
+- **COMPLETED ≠ Data received**: For Push, also check your webhook
+- **EDR tokens expire**: Typically 30-60 minutes - use them promptly
+- **Multiple EDRs allowed**: Initiate multiple Pull transfers for the same contract
+
+---
 
 ✅ **Result**: You'll receive the actual data from the provider's data source!
 
